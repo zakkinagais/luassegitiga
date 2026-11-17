@@ -1,0 +1,1441 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tayangan Interaktif & Connector: Luas Segitiga Kelas V</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- KaTeX untuk render notasi matematika LaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+    }
+    .slide-panel {
+      display: none;
+      animation: fadeIn 0.35s ease-out;
+    }
+    .slide-panel.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes breathe {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.22); }
+    }
+    .breathing-circle {
+      animation: breathe 6s infinite ease-in-out;
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- TOP NAVIGATION BAR -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <!-- Brand / Title -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-extrabold text-lg shadow-sm">
+          $\Delta$
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700">Matematika Kelas V (Fase C)</span>
+            <span class="text-xs font-medium text-slate-500 hidden sm:inline">Alokasi: $2 \times 35$ Menit</span>
+          </div>
+          <h1 class="text-base sm:text-lg font-bold text-slate-800 leading-tight">Eksplorasi Konsep & Rumus Luas Segitiga</h1>
+        </div>
+      </div>
+
+      <!-- Classroom Timer & Quick Controls -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Live Stage Timer -->
+        <div class="flex items-center bg-slate-100 border border-slate-200 rounded-xl px-3 py-1.5 gap-2">
+          <span class="text-xs font-semibold text-slate-500 hidden md:inline">Timer Tahap:</span>
+          <span id="timerDisplay" class="font-mono font-bold text-base text-indigo-700 w-14 text-center">10:00</span>
+          <button onclick="toggleTimer()" id="timerToggleBtn" class="px-2 py-1 text-xs font-semibold rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition">
+            Mulai
+          </button>
+          <button onclick="resetTimer()" class="px-2 py-1 text-xs font-semibold rounded-lg bg-white border border-slate-300 text-slate-600 hover:bg-slate-50 transition" title="Reset Timer">
+            Reset
+          </button>
+        </div>
+
+        <!-- Custom Link Setup Button -->
+        <button onclick="openModal('linkModal')" class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs sm:text-sm font-semibold hover:bg-amber-100 transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+          <span>Atur Link Kelas</span>
+        </button>
+
+        <!-- Rubric & Teacher Guide Button -->
+        <button onclick="openModal('rubricModal')" class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs sm:text-sm font-semibold hover:bg-emerald-100 transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+          <span class="hidden sm:inline">Rubrik & Panduan</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- STEPPER / STAGE CONNECTOR BAR -->
+    <div class="bg-slate-50 border-t border-slate-200 overflow-x-auto">
+      <div class="max-w-7xl mx-auto px-4 py-2 flex items-center gap-1.5 min-w-max" id="stepperNav">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN SLIDE VIEWPORT -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-6">
+
+    <!-- ========================================================= -->
+    <!-- SLIDE 0: PETA ALUR & CONNECTOR EKOSISTEM DIGITAL           -->
+    <!-- ========================================================= -->
+    <section id="slide-0" class="slide-panel active space-y-6">
+      <div class="bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-600 rounded-2xl p-6 sm:p-8 text-white shadow-md">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div class="space-y-2 max-w-2xl">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 text-xs font-semibold backdrop-blur-sm">
+              <span>Model: Discovery Learning</span>
+              <span>•</span>
+              <span>Pendekatan: Pembelajaran Mendalam (Deep Learning)</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Peta Alur & Connector Pembelajaran Digital</h2>
+            <p class="text-indigo-100 text-sm sm:text-base leading-relaxed">
+              Gunakan tayangan ini sebagai papan kendali kelas. Klik setiap tahap pembelajaran untuk memandu aktivitas siswa atau luncurkan aplikasi digital terintegrasi secara langsung.
+            </p>
+          </div>
+          <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-4 text-sm space-y-1.5 min-w-[240px]">
+            <div class="font-bold text-amber-200 uppercase text-xs tracking-wider">Prinsip Pembelajaran</div>
+            <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-300"></span> Berkesadaran (Mindful)</div>
+            <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-amber-300"></span> Bermakna (Meaningful)</div>
+            <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-pink-300"></span> Menggembirakan (Joyful)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Connector Links Grid -->
+      <div>
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+            <span class="w-2.5 h-6 bg-indigo-600 rounded-full"></span>
+            Connector Ekosistem Digital Terintegrasi
+          </h3>
+          <button onclick="openModal('linkModal')" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 underline">
+            Ubah Tautan Kelas Anda
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Connector 1: Wordwall / Quizizz -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <span class="px-2.5 py-1 rounded-lg bg-purple-100 text-purple-700 text-xs font-bold">Tahap Pendahuluan</span>
+                <span class="text-xs text-slate-400 font-medium">Asesmen Awal</span>
+              </div>
+              <h4 class="font-bold text-slate-800 text-base mb-1">Wordwall / Quizizz</h4>
+              <p class="text-xs text-slate-600 leading-relaxed mb-4">
+                Kuis kilat interaktif 3 soal untuk mengaktifkan pengetahuan prasyarat (perkalian, pembagian dua, dan luas persegi panjang).
+              </p>
+            </div>
+            <div class="space-y-2">
+              <a id="conn-quiz" href="https://wordwall.net" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-purple-600 text-white text-xs font-bold hover:bg-purple-700 transition">
+                <span>Buka Wordwall / Quizizz</span>
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+              </a>
+              <button onclick="goToSlide(1)" class="w-full px-3 py-1.5 rounded-lg bg-slate-100 text-slate-700 text-xs font-semibold hover:bg-slate-200 transition">
+                Gunakan Kuis Bawaan Slide
+              </button>
+            </div>
+          </div>
+
+          <!-- Connector 2: Canva / Stimulus -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <span class="px-2.5 py-1 rounded-lg bg-sky-100 text-sky-700 text-xs font-bold">Tahap Pemantik</span>
+                <span class="text-xs text-slate-400 font-medium">Kontekstual</span>
+              </div>
+              <h4 class="font-bold text-slate-800 text-base mb-1">Canva / Slide Stimulus</h4>
+              <p class="text-xs text-slate-600 leading-relaxed mb-4">
+                Penyajian masalah nyata: menghitung luas kain layar perahu tradisional dan genteng atap rumah berbentuk segitiga.
+              </p>
+            </div>
+            <div class="space-y-2">
+              <a id="conn-canva" href="https://www.canva.com" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-sky-600 text-white text-xs font-bold hover:bg-sky-700 transition">
+                <span>Buka Canva Slide</span>
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+              </a>
+              <button onclick="goToSlide(2)" class="w-full px-3 py-1.5 rounded-lg bg-slate-100 text-slate-700 text-xs font-semibold hover:bg-slate-200 transition">
+                Tampilkan Visual di Tayangan Ini
+              </button>
+            </div>
+          </div>
+
+          <!-- Connector 3: Mathigon Polypad -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <span class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-700 text-xs font-bold">Kegiatan Inti</span>
+                <span class="text-xs text-slate-400 font-medium">Eksplorasi Visual</span>
+              </div>
+              <h4 class="font-bold text-slate-800 text-base mb-1">Mathigon Polypad</h4>
+              <p class="text-xs text-slate-600 leading-relaxed mb-4">
+                Kanvas grid berpetak interaktif untuk memotong persegi panjang menjadi segitiga siku-siku, sama kaki, dan sembarang.
+              </p>
+            </div>
+            <div class="space-y-2">
+              <a id="conn-polypad" href="https://polypad.amplify.com/p" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition">
+                <span>Luncurkan Mathigon Polypad</span>
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+              </a>
+              <button onclick="goToSlide(3)" class="w-full px-3 py-1.5 rounded-lg bg-slate-100 text-slate-700 text-xs font-semibold hover:bg-slate-200 transition">
+                Buka Simulasi Papan Berpetak
+              </button>
+            </div>
+          </div>
+
+          <!-- Connector 4: Padlet / Mentimeter -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <span class="px-2.5 py-1 rounded-lg bg-amber-100 text-amber-700 text-xs font-bold">Tahap Penutup</span>
+                <span class="text-xs text-slate-400 font-medium">Refleksi</span>
+              </div>
+              <h4 class="font-bold text-slate-800 text-base mb-1">Padlet / Mentimeter</h4>
+              <p class="text-xs text-slate-600 leading-relaxed mb-4">
+                Papan refleksi digital kolaboratif di akhir pembelajaran (dilengkapi papan sticky notes bawaan jika perangkat terbatas).
+              </p>
+            </div>
+            <div class="space-y-2">
+              <a id="conn-padlet" href="https://padlet.com" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-amber-600 text-white text-xs font-bold hover:bg-amber-700 transition">
+                <span>Buka Padlet / Mentimeter</span>
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+              </a>
+              <button onclick="goToSlide(6)" class="w-full px-3 py-1.5 rounded-lg bg-slate-100 text-slate-700 text-xs font-semibold hover:bg-slate-200 transition">
+                Buka Papan Sticky Notes Kelas
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sequence Roadmap Cards -->
+      <div>
+        <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2 mb-3">
+          <span class="w-2.5 h-6 bg-emerald-600 rounded-full"></span>
+          Alur Sintaks Pembelajaran (70 Menit)
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Card Pendahuluan -->
+          <div onclick="goToSlide(1)" class="cursor-pointer bg-white rounded-2xl border-2 border-slate-200 hover:border-indigo-500 p-5 transition group">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-extrabold uppercase tracking-wider text-indigo-600">1. Pendahuluan</span>
+              <span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700">10 Menit</span>
+            </div>
+            <h4 class="font-bold text-slate-800 group-hover:text-indigo-700 mb-2">Mindfulness STOP, Kuis Kilat & Pertanyaan Pemantik</h4>
+            <ul class="text-xs text-slate-600 space-y-1">
+              <li>• Teknik STOP agar siswa hadir utuh (Berkesadaran)</li>
+              <li>• 3 soal diagnostik perkalian & luas persegi panjang</li>
+              <li>• Stimulus kontekstual layar perahu & atap rumah</li>
+            </ul>
+          </div>
+
+          <!-- Card Kegiatan Inti -->
+          <div onclick="goToSlide(3)" class="cursor-pointer bg-white rounded-2xl border-2 border-slate-200 hover:border-emerald-500 p-5 transition group">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-extrabold uppercase tracking-wider text-emerald-600">2. Kegiatan Inti (Discovery)</span>
+              <span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700">50 Menit</span>
+            </div>
+            <h4 class="font-bold text-slate-800 group-hover:text-emerald-700 mb-2">6 Sintaks Discovery Learning & Eksplorasi Polypad</h4>
+            <ul class="text-xs text-slate-600 space-y-1">
+              <li>• <strong>Stimulation & Problem (10m):</strong> Potong diagonal persegi panjang</li>
+              <li>• <strong>Data Collection & Processing (25m):</strong> Eksplorasi Polypad & LKPD</li>
+              <li>• <strong>Verification & Generalization (15m):</strong> Bukti $90^\circ$ & soal cerita</li>
+            </ul>
+          </div>
+
+          <!-- Card Penutup -->
+          <div onclick="goToSlide(6)" class="cursor-pointer bg-white rounded-2xl border-2 border-slate-200 hover:border-amber-500 p-5 transition group">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-extrabold uppercase tracking-wider text-amber-600">3. Penutup</span>
+              <span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700">10 Menit</span>
+            </div>
+            <h4 class="font-bold text-slate-800 group-hover:text-amber-700 mb-2">Refleksi Mendalam & Tindak Lanjut</h4>
+            <ul class="text-xs text-slate-600 space-y-1">
+              <li>• 2 pertanyaan refleksi metakognitif (Merefleksi)</li>
+              <li>• Penguatan konsep & pelurusan miskonsepsi</li>
+              <li>• Pratinjau materi pertemuan berikutnya</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- SLIDE 1: PENDAHULUAN - MINDFULNESS & KUIS DIAGNOSTIK     -->
+    <!-- ========================================================= -->
+    <section id="slide-1" class="slide-panel space-y-6">
+      <div class="flex flex-wrap items-center justify-between gap-2 bg-white p-4 rounded-2xl border border-slate-200">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-indigo-600">Tahap Pendahuluan • Bagian 1</span>
+          <h2 class="text-xl font-extrabold text-slate-800">Orientasi Berkesadaran (STOP) & Apersepsi Kuis Kilat</h2>
+        </div>
+        <button onclick="setStageTimer(10)" class="px-3 py-1.5 rounded-xl bg-indigo-50 text-indigo-700 text-xs font-bold hover:bg-indigo-100 transition">
+          Set Timer 10 Menit
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Left: Mindfulness STOP -->
+        <div class="lg:col-span-5 bg-gradient-to-b from-teal-50 to-emerald-50 border border-teal-200 rounded-2xl p-6 flex flex-col justify-between">
+          <div>
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-600 text-white text-xs font-bold mb-3">
+              Prinsip: Berkesadaran (Mindfulness)
+            </div>
+            <h3 class="text-lg font-extrabold text-teal-950 mb-2">Teknik STOP Sebelum Belajar</h3>
+            <p class="text-xs text-teal-800 mb-5 leading-relaxed">
+              Ajak siswa berhenti sejenak dari aktivitas sebelumnya agar hadir utuh secara sadar dan siap bereksplorasi.
+            </p>
+
+            <!-- Breathing visual -->
+            <div class="flex flex-col items-center justify-center py-4">
+              <div class="w-28 h-28 rounded-full bg-teal-400/30 flex items-center justify-center breathing-circle">
+                <div class="w-20 h-20 rounded-full bg-teal-600 text-white flex items-center justify-center font-bold text-xs text-center px-2 shadow-md">
+                  Tarik Napas... Hembuskan...
+                </div>
+              </div>
+            </div>
+
+            <div class="space-y-2.5 mt-4">
+              <div class="bg-white/80 rounded-xl p-3 border border-teal-100 flex items-start gap-3">
+                <span class="w-7 h-7 rounded-lg bg-teal-600 text-white font-extrabold text-sm flex items-center justify-center shrink-0">S</span>
+                <div>
+                  <div class="font-bold text-xs text-teal-950">Stop (Berhenti Sejenak)</div>
+                  <div class="text-xs text-teal-800">Hentikan seluruh aktivitas, letakkan alat tulis, duduk tegak dengan nyaman.</div>
+                </div>
+              </div>
+              <div class="bg-white/80 rounded-xl p-3 border border-teal-100 flex items-start gap-3">
+                <span class="w-7 h-7 rounded-lg bg-teal-600 text-white font-extrabold text-sm flex items-center justify-center shrink-0">T</span>
+                <div>
+                  <div class="font-bold text-xs text-teal-950">Take a Breath (Tarik Napas Dalam)</div>
+                  <div class="text-xs text-teal-800">Tarik napas perlahan melalui hidung, rasakan udara masuk, lalu hembuskan pelan.</div>
+                </div>
+              </div>
+              <div class="bg-white/80 rounded-xl p-3 border border-teal-100 flex items-start gap-3">
+                <span class="w-7 h-7 rounded-lg bg-teal-600 text-white font-extrabold text-sm flex items-center justify-center shrink-0">O</span>
+                <div>
+                  <div class="font-bold text-xs text-teal-950">Observe (Amati Perasaan)</div>
+                  <div class="text-xs text-teal-800">Amati apa yang dirasakan tubuh dan pikiran saat ini tanpa menghakimi.</div>
+                </div>
+              </div>
+              <div class="bg-white/80 rounded-xl p-3 border border-teal-100 flex items-start gap-3">
+                <span class="w-7 h-7 rounded-lg bg-teal-600 text-white font-extrabold text-sm flex items-center justify-center shrink-0">P</span>
+                <div>
+                  <div class="font-bold text-xs text-teal-950">Proceed (Lanjutkan Belajar)</div>
+                  <div class="text-xs text-teal-800">Buka mata dengan senyuman, siap memulai petualangan matematika hari ini!</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Apersepsi Bermain (Kuis Kilat 3 Soal) -->
+        <div class="lg:col-span-7 bg-white border border-slate-200 rounded-2xl p-6 flex flex-col justify-between shadow-sm">
+          <div>
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+              <div>
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-100 text-purple-700 text-xs font-bold mb-1">
+                  Prinsip: Menggembirakan • Asesmen Awal
+                </span>
+                <h3 class="text-lg font-extrabold text-slate-800">Apersepsi Bermain: Kuis Kilat 3 Soal</h3>
+              </div>
+              <a id="slide1-quiz-link" href="https://wordwall.net" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-purple-600 text-white text-xs font-bold hover:bg-purple-700 transition shadow-sm">
+                <span>Buka di Wordwall / Quizizz</span>
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+              </a>
+            </div>
+            <p class="text-xs text-slate-600 mb-4">
+              Gunakan kuis interaktif di bawah ini secara klasikal di layar proyektor atau melalui tautan Wordwall/Quizizz untuk menguji prasyarat siswa:
+            </p>
+
+            <!-- Built-in 3 Diagnostic Questions -->
+            <div class="space-y-4" id="diagnosticQuizContainer">
+              <!-- Question 1 -->
+              <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <div class="font-bold text-sm text-slate-800 mb-2">Soal 1 (Perkalian Dasar): Berapakah hasil dari $8 \times 6$?</div>
+                <div class="grid grid-cols-3 gap-2">
+                  <button onclick="checkDiag(this, 1, false)" class="diag-btn-1 py-2 px-3 rounded-lg bg-white border border-slate-300 text-sm font-bold hover:bg-indigo-50 transition">$42$</button>
+                  <button onclick="checkDiag(this, 1, true)" class="diag-btn-1 py-2 px-3 rounded-lg bg-white border border-slate-300 text-sm font-bold hover:bg-indigo-50 transition">$48$</button>
+                  <button onclick="checkDiag(this, 1, false)" class="diag-btn-1 py-2 px-3 rounded-lg bg-white border border-slate-300 text-sm font-bold hover:bg-indigo-50 transition">$54$</button>
+                </div>
+                <div id="diag-fb-1" class="text-xs font-semibold mt-2 hidden"></div>
+              </div>
+
+              <!-- Question 2 -->
+              <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <div class="font-bold text-sm text-slate-800 mb-2">Soal 2 (Pembagian Dua / Setengah): Setengah dari $36$ adalah $\frac{1}{2} \times 36 = \dots$</div>
+                <div class="grid grid-cols-3 gap-2">
+                  <button onclick="checkDiag(this, 2, true)" class="diag-btn-2 py-2 px-3 rounded-lg bg-white border border-slate-300 text-sm font-bold hover:bg-indigo-50 transition">$18$</button>
+                  <button onclick="checkDiag(this, 2, false)" class="diag-btn-2 py-2 px-3 rounded-lg bg-white border border-slate-300 text-sm font-bold hover:bg-indigo-50 transition">$16$</button>
+                  <button onclick="checkDiag(this, 2, false)" class="diag-btn-2 py-2 px-3 rounded-lg bg-white border border-slate-300 text-sm font-bold hover:bg-indigo-50 transition">$19$</button>
+                </div>
+                <div id="diag-fb-2" class="text-xs font-semibold mt-2 hidden"></div>
+              </div>
+
+              <!-- Question 3 -->
+              <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <div class="font-bold text-sm text-slate-800 mb-2">Soal 3 (Luas Persegi Panjang): Sebuah persegi panjang memiliki panjang $7\text{ cm}$ dan lebar $4\text{ cm}$. Luasnya adalah...</div>
+                <div class="grid grid-cols-3 gap-2">
+                  <button onclick="checkDiag(this, 3, false)" class="diag-btn-3 py-2 px-3 rounded-lg bg-white border border-slate-300 text-sm font-bold hover:bg-indigo-50 transition">$22\text{ cm}^2$</button>
+                  <button onclick="checkDiag(this, 3, false)" class="diag-btn-3 py-2 px-3 rounded-lg bg-white border border-slate-300 text-sm font-bold hover:bg-indigo-50 transition">$11\text{ cm}^2$</button>
+                  <button onclick="checkDiag(this, 3, true)" class="diag-btn-3 py-2 px-3 rounded-lg bg-white border border-slate-300 text-sm font-bold hover:bg-indigo-50 transition">$28\text{ cm}^2$</button>
+                </div>
+                <div id="diag-fb-3" class="text-xs font-semibold mt-2 hidden"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- SLIDE 2: PENDAHULUAN - PERTANYAAN PEMANTIK KONTEKSTUAL  -->
+    <!-- ========================================================= -->
+    <section id="slide-2" class="slide-panel space-y-6">
+      <div class="flex flex-wrap items-center justify-between gap-2 bg-white p-4 rounded-2xl border border-slate-200">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-sky-600">Tahap Pendahuluan • Bagian 2</span>
+          <h2 class="text-xl font-extrabold text-slate-800">Pertanyaan Pemantik Kontekstual (Bermakna)</h2>
+        </div>
+        <a id="slide2-canva-link" href="https://www.canva.com" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-sky-600 text-white text-xs font-bold hover:bg-sky-700 transition">
+          <span>Buka Slide Canva</span>
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+        </a>
+      </div>
+
+      <!-- Visual Stimulus Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Stimulus 1: Layar Perahu -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col items-center text-center">
+          <div class="w-full h-48 bg-gradient-to-b from-sky-100 to-blue-200 rounded-xl flex items-center justify-center mb-4 p-4 relative overflow-hidden">
+            <svg viewBox="0 0 240 160" class="w-56 h-40">
+              <!-- Water -->
+              <path d="M0 135 Q 30 128, 60 135 T 120 135 T 180 135 T 240 135 L 240 160 L 0 160 Z" fill="#0284c7" opacity="0.8"/>
+              <!-- Boat Hull -->
+              <path d="M45 120 L195 120 L175 142 L65 142 Z" fill="#92400e"/>
+              <!-- Mast -->
+              <rect x="112" y="20" width="5" height="100" fill="#78350f"/>
+              <!-- Triangular Sail -->
+              <polygon points="117,24 185,112 117,112" fill="#fef3c7" stroke="#f59e0b" stroke-width="2.5"/>
+              <polygon points="110,34 62,112 110,112" fill="#fde68a" stroke="#f59e0b" stroke-width="2"/>
+            </svg>
+            <span class="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-white/90 text-sky-800 text-xs font-bold shadow-sm">Bentuk Segitiga</span>
+          </div>
+          <h3 class="font-extrabold text-lg text-slate-800 mb-1">1. Kain Layar Perahu Tradisional</h3>
+          <p class="text-sm text-slate-600">
+            Nelayan membutuhkan kain layar berbentuk segitiga agar perahu dapat melaju tertiup angin di laut.
+          </p>
+        </div>
+
+        <!-- Stimulus 2: Atap Rumah -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col items-center text-center">
+          <div class="w-full h-48 bg-gradient-to-b from-amber-50 to-orange-100 rounded-xl flex items-center justify-center mb-4 p-4 relative overflow-hidden">
+            <svg viewBox="0 0 240 160" class="w-56 h-40">
+              <!-- Ground -->
+              <rect x="0" y="140" width="240" height="20" fill="#84cc16" opacity="0.6"/>
+              <!-- House Wall -->
+              <rect x="65" y="82" width="110" height="58" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/>
+              <!-- Door & Window -->
+              <rect x="108" y="102" width="24" height="38" fill="#b45309"/>
+              <rect x="78" y="98" width="20" height="20" fill="#bae6fd" stroke="#0284c7" stroke-width="1.5"/>
+              <rect x="142" y="98" width="20" height="20" fill="#bae6fd" stroke="#0284c7" stroke-width="1.5"/>
+              <!-- Triangular Roof -->
+              <polygon points="120,25 48,82 192,82" fill="#ea580c" stroke="#9a3412" stroke-width="2.5"/>
+            </svg>
+            <span class="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-white/90 text-orange-800 text-xs font-bold shadow-sm">Bentuk Segitiga</span>
+          </div>
+          <h3 class="font-extrabold text-lg text-slate-800 mb-1">2. Sisi Atap Rumah</h3>
+          <p class="text-sm text-slate-600">
+            Tukang kayu memasang penutup atap bagian depan rumah yang berbentuk segitiga sama kaki.
+          </p>
+        </div>
+      </div>
+
+      <!-- Guiding Question Banner -->
+      <div class="bg-amber-50 border-2 border-amber-300 rounded-2xl p-6 sm:p-8 text-center space-y-3 shadow-sm">
+        <span class="inline-block px-3 py-1 rounded-full bg-amber-500 text-white text-xs font-extrabold uppercase tracking-wider">
+          Pertanyaan Pemantik Utama
+        </span>
+        <blockquote class="text-xl sm:text-2xl font-extrabold text-slate-800 max-w-4xl mx-auto leading-snug">
+          "Jika tukang kayu ingin menghitung luas kain layar atau genteng yang dibutuhkan, bagaimana cara menghitungnya jika kita baru mengetahui rumus luas persegi panjang ($L = p \times l$)?"
+        </blockquote>
+        <p class="text-sm text-amber-900 font-medium">
+          Ajak siswa berpendapat secara bebas sebelum masuk ke tahap pembuktian visual!
+        </p>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- SLIDE 3: INTI (STIMULATION & PROBLEM STATEMENT)           -->
+    <!-- ========================================================= -->
+    <section id="slide-3" class="slide-panel space-y-6">
+      <div class="flex flex-wrap items-center justify-between gap-2 bg-white p-4 rounded-2xl border border-slate-200">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-emerald-600">Kegiatan Inti • Sintaks 1 & 2 (10 Menit)</span>
+          <h2 class="text-xl font-extrabold text-slate-800">Stimulation & Problem Statement: Papan Berpetak Digital</h2>
+        </div>
+        <button onclick="setStageTimer(10)" class="px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 text-xs font-bold hover:bg-emerald-100 transition">
+          Set Timer 10 Menit
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Left: Interactive Grid Visualizer -->
+        <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h3 class="font-bold text-slate-800 text-base">Simulasi Potong Persegi Panjang Menjadi Segitiga</h3>
+            <div class="flex items-center gap-1.5">
+              <button onclick="setGridSize(6, 4)" id="btn-grid-6x4" class="grid-size-btn px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-600 text-white">$6 \times 4$</button>
+              <button onclick="setGridSize(8, 5)" id="btn-grid-8x5" class="grid-size-btn px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">$8 \times 5$</button>
+              <button onclick="setGridSize(10, 4)" id="btn-grid-10x4" class="grid-size-btn px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">$10 \times 4$</button>
+            </div>
+          </div>
+
+          <!-- SVG Interactive Canvas -->
+          <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-col items-center justify-center overflow-x-auto">
+            <svg id="simSvg" width="420" height="240" viewBox="0 0 420 240" class="max-w-full h-auto"></svg>
+          </div>
+
+          <!-- Controls for Triangle Type / Vertex Position -->
+          <div class="space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <span class="text-xs font-bold text-slate-700">Geser Titik Puncak Segitiga (Ubah Bentuk):</span>
+              <div class="flex gap-1.5">
+                <button onclick="setVertexPreset('right')" class="px-2.5 py-1 rounded-lg bg-white border border-slate-300 text-xs font-semibold hover:bg-indigo-50">Siku-Siku</button>
+                <button onclick="setVertexPreset('isosceles')" class="px-2.5 py-1 rounded-lg bg-white border border-slate-300 text-xs font-semibold hover:bg-indigo-50">Sama Kaki</button>
+                <button onclick="setVertexPreset('scalene')" class="px-2.5 py-1 rounded-lg bg-white border border-slate-300 text-xs font-semibold hover:bg-indigo-50">Sembarang</button>
+              </div>
+            </div>
+            <input type="range" id="vertexSlider" min="0" max="6" step="1" value="0" oninput="updateSimulation()" class="w-full accent-indigo-600 cursor-pointer" />
+
+            <div class="grid grid-cols-3 gap-2 text-center pt-1">
+              <div class="bg-white p-2.5 rounded-lg border border-slate-200">
+                <div class="text-[11px] text-slate-500 font-semibold">Luas Persegi Panjang</div>
+                <div id="simRectArea" class="text-sm font-extrabold text-slate-800">$6 \times 4 = 24$ petak</div>
+              </div>
+              <div class="bg-emerald-50 p-2.5 rounded-lg border border-emerald-200">
+                <div class="text-[11px] text-emerald-700 font-semibold">Luas Segitiga (Arsir)</div>
+                <div id="simTriArea" class="text-sm font-extrabold text-emerald-800">$12$ petak satuan</div>
+              </div>
+              <div class="bg-amber-50 p-2.5 rounded-lg border border-amber-200">
+                <div class="text-[11px] text-amber-700 font-semibold">Perbandingan</div>
+                <div class="text-sm font-extrabold text-amber-800">$\frac{1}{2}$ Persegi Panjang</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Syntax 1 & 2 Teacher Guide & Problem Statement -->
+        <div class="lg:col-span-5 flex flex-col justify-between space-y-4">
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3">
+            <span class="px-2.5 py-1 rounded-lg bg-blue-100 text-blue-800 text-xs font-bold">1. Stimulation (5 Menit)</span>
+            <h3 class="font-bold text-slate-800 text-base">Amati Pemotongan Persegi Panjang</h3>
+            <p class="text-xs text-slate-600 leading-relaxed">
+              Guru mendemonstrasikan sebuah persegi panjang pada papan berpetak digital di samping, lalu menarik garis potong yang membelahnya menjadi segitiga. Siswa mengamati ukuran alas, tinggi, dan jumlah petak satuan yang tersisa.
+            </p>
+          </div>
+
+          <div class="bg-indigo-50 border-2 border-indigo-300 rounded-2xl p-6 shadow-sm space-y-3 flex-1 flex flex-col justify-center">
+            <span class="w-fit px-2.5 py-1 rounded-lg bg-indigo-600 text-white text-xs font-bold">2. Problem Statement (5 Menit)</span>
+            <h3 class="font-extrabold text-indigo-950 text-lg">Hipotesis Awal Kelompok</h3>
+            <p class="text-xs text-indigo-900">
+              Siswa dalam kelompok (3–4 orang) merumuskan dugaan sementara atas pertanyaan berikut:
+            </p>
+            <div class="bg-white p-4 rounded-xl border border-indigo-200 text-sm font-bold text-slate-800 leading-relaxed shadow-inner">
+              "Apakah luas setiap segitiga selalu setengah ($\frac{1}{2}$) dari luas persegi panjang yang melingkupinya, meskipun segitiganya berbentuk miring atau sembarang?"
+            </div>
+            <button onclick="goToSlide(4)" class="mt-2 w-full py-2.5 px-4 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 transition">
+              Lanjut ke Eksplorasi Mathigon Polypad &rarr;
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- SLIDE 4: INTI (DATA COLLECTION & DATA PROCESSING - LKPD)  -->
+    <!-- ========================================================= -->
+    <section id="slide-4" class="slide-panel space-y-6">
+      <div class="flex flex-wrap items-center justify-between gap-2 bg-white p-4 rounded-2xl border border-slate-200">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-emerald-600">Kegiatan Inti • Sintaks 3 & 4 (25 Menit)</span>
+          <h2 class="text-xl font-extrabold text-slate-800">Data Collection & Processing: Eksplorasi Polypad & LKPD</h2>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="setStageTimer(15)" class="px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 text-xs font-bold hover:bg-emerald-100 transition">
+            Timer Eksplorasi (15m)
+          </button>
+          <button onclick="setStageTimer(10)" class="px-3 py-1.5 rounded-xl bg-blue-50 text-blue-700 text-xs font-bold hover:bg-blue-100 transition">
+            Timer Olah Data (10m)
+          </button>
+        </div>
+      </div>
+
+      <!-- Connector Bar to Mathigon Polypad -->
+      <div class="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl p-5 text-white flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm">
+        <div class="space-y-1">
+          <div class="text-xs font-bold uppercase tracking-wider text-emerald-200">Pengalaman Belajar: Memahami</div>
+          <h3 class="text-lg font-extrabold">Langkah Eksplorasi pada Mathigon Polypad</h3>
+          <p class="text-xs text-emerald-50">
+            1. Buka Polypad &rarr; 2. Pilih <strong>Geometry &rarr; Polygons & Shapes</strong> &rarr; 3. Aktifkan <strong>Grid Berpetak</strong> &rarr; 4. Gunakan <strong>Cut Tool (Gunting)</strong> untuk memotong persegi panjang.
+          </p>
+        </div>
+        <a id="slide4-polypad-link" href="https://polypad.amplify.com/p" target="_blank" rel="noopener noreferrer" class="shrink-0 inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white text-emerald-800 font-extrabold text-sm hover:bg-emerald-50 transition shadow">
+          <span>Buka Kanvas Mathigon Polypad</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+        </a>
+      </div>
+
+      <!-- Interactive LKPD Table (Aktivitas 1) -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-5">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h3 class="text-lg font-extrabold text-slate-800">LKPD Digital — Aktivitas 1: Tabel Pengamatan Petak Satuan</h3>
+            <p class="text-xs text-slate-500">Isi hasil percobaan kelompok pada tabel di bawah ini, lalu klik tombol periksa untuk memverifikasi temuan.</p>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="checkLkpdTable()" class="px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 transition">
+              Periksa Jawaban Tabel
+            </button>
+            <button onclick="fillLkpdDemo()" class="px-3 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-semibold hover:bg-slate-200 transition">
+              Tampilkan Kunci
+            </button>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs sm:text-sm">
+            <thead>
+              <tr class="bg-slate-100 text-slate-700 border-b border-slate-200">
+                <th class="p-3 font-bold">No</th>
+                <th class="p-3 font-bold">Ukuran Persegi Panjang ($p \times l$)</th>
+                <th class="p-3 font-bold">Luas Persegi Panjang (Petak)</th>
+                <th class="p-3 font-bold">Jenis Segitiga Hasil Potongan</th>
+                <th class="p-3 font-bold">Alas ($a$) & Tinggi ($t$)</th>
+                <th class="p-3 font-bold">Luas 1 Segitiga (Petak)</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200">
+              <!-- Row 1 -->
+              <tr>
+                <td class="p-3 font-bold">1</td>
+                <td class="p-3">$6\text{ petak} \times 4\text{ petak}$</td>
+                <td class="p-3 font-semibold text-slate-700">$24$ petak satuan</td>
+                <td class="p-3"><span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-semibold">Segitiga Siku-Siku</span></td>
+                <td class="p-3">$a = 6, \; t = 4$</td>
+                <td class="p-3">
+                  <input type="number" id="lkpd-tri1" placeholder="?" class="w-20 px-2.5 py-1.5 border border-slate-300 rounded-lg font-bold text-center focus:outline-none focus:border-indigo-500" />
+                  <span class="text-xs text-slate-500 ml-1">petak</span>
+                </td>
+              </tr>
+              <!-- Row 2 -->
+              <tr>
+                <td class="p-3 font-bold">2</td>
+                <td class="p-3">$8\text{ petak} \times 5\text{ petak}$</td>
+                <td class="p-3">
+                  <input type="number" id="lkpd-rect2" placeholder="?" class="w-20 px-2.5 py-1.5 border border-slate-300 rounded-lg font-bold text-center focus:outline-none focus:border-indigo-500" />
+                  <span class="text-xs text-slate-500 ml-1">petak</span>
+                </td>
+                <td class="p-3"><span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-semibold">Segitiga Sama Kaki</span></td>
+                <td class="p-3">
+                  $a =$ <input type="number" id="lkpd-a2" placeholder="?" class="w-14 px-2 py-1 border border-slate-300 rounded-lg font-bold text-center" />,
+                  $t =$ <input type="number" id="lkpd-t2" placeholder="?" class="w-14 px-2 py-1 border border-slate-300 rounded-lg font-bold text-center" />
+                </td>
+                <td class="p-3">
+                  <input type="number" id="lkpd-tri2" placeholder="?" class="w-20 px-2.5 py-1.5 border border-slate-300 rounded-lg font-bold text-center focus:outline-none focus:border-indigo-500" />
+                  <span class="text-xs text-slate-500 ml-1">petak</span>
+                </td>
+              </tr>
+              <!-- Row 3 -->
+              <tr>
+                <td class="p-3 font-bold">3</td>
+                <td class="p-3">$10\text{ petak} \times 4\text{ petak}$</td>
+                <td class="p-3">
+                  <input type="number" id="lkpd-rect3" placeholder="?" class="w-20 px-2.5 py-1.5 border border-slate-300 rounded-lg font-bold text-center focus:outline-none focus:border-indigo-500" />
+                  <span class="text-xs text-slate-500 ml-1">petak</span>
+                </td>
+                <td class="p-3"><span class="px-2 py-0.5 rounded bg-amber-50 text-amber-700 font-semibold">Segitiga Sembarang</span></td>
+                <td class="p-3">
+                  $a =$ <input type="number" id="lkpd-a3" placeholder="?" class="w-14 px-2 py-1 border border-slate-300 rounded-lg font-bold text-center" />,
+                  $t =$ <input type="number" id="lkpd-t3" placeholder="?" class="w-14 px-2 py-1 border border-slate-300 rounded-lg font-bold text-center" />
+                </td>
+                <td class="p-3">
+                  <input type="number" id="lkpd-tri3" placeholder="?" class="w-20 px-2.5 py-1.5 border border-slate-300 rounded-lg font-bold text-center focus:outline-none focus:border-indigo-500" />
+                  <span class="text-xs text-slate-500 ml-1">petak</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div id="lkpdTableFeedback" class="hidden p-3 rounded-xl text-xs font-bold"></div>
+
+        <!-- Formula Discovery Card -->
+        <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div class="space-y-1">
+            <div class="text-xs font-extrabold uppercase text-indigo-700">4. Data Processing — Menemukan Pola Rumus</div>
+            <p class="text-xs text-slate-700">
+              Jika panjang persegi panjang ($p$) berperan sebagai <strong>alas ($a$)</strong> dan lebarnya ($l$) sebagai <strong>tinggi ($t$)</strong>, serta luas segitiga adalah setengah luas persegi panjang, maka:
+            </p>
+          </div>
+          <div id="formulaRevealBox" class="shrink-0">
+            <button onclick="revealFormula()" class="px-4 py-2.5 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 transition shadow-sm">
+              Klik untuk Menyimpulkan Rumus
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- SLIDE 5: INTI (VERIFICATION & GENERALIZATION)             -->
+    <!-- ========================================================= -->
+    <section id="slide-5" class="slide-panel space-y-6">
+      <div class="flex flex-wrap items-center justify-between gap-2 bg-white p-4 rounded-2xl border border-slate-200">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-emerald-600">Kegiatan Inti • Sintaks 5 & 6 (15 Menit)</span>
+          <h2 class="text-xl font-extrabold text-slate-800">Verification (Pembuktian $90^\circ$) & Generalization (Aplikasi)</h2>
+        </div>
+        <button onclick="setStageTimer(15)" class="px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 text-xs font-bold hover:bg-emerald-100 transition">
+          Set Timer 15 Menit
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Left: Verification Visual (Tinggi vs Sisi Miring) -->
+        <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex flex-col justify-between space-y-4">
+          <div>
+            <span class="px-2.5 py-1 rounded-lg bg-rose-100 text-rose-700 text-xs font-bold">5. Verification (10 Menit)</span>
+            <h3 class="font-extrabold text-slate-800 text-base mt-2">Pembuktian: Sisi Miring BUKAN Tinggi Segitiga!</h3>
+            <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+              Perwakilan kelompok membuktikan pada grid digital bahwa tinggi segitiga ($t$) harus selalu membentuk sudut siku-siku ($90^\circ$) dengan alas ($a$).
+            </p>
+
+            <!-- SVG Proof Diagram -->
+            <div class="mt-4 bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-col items-center">
+              <svg viewBox="0 0 300 190" class="w-full max-w-[280px] h-auto">
+                <!-- Grid background lines -->
+                <g stroke="#e2e8f0" stroke-width="1">
+                  <line x1="30" y1="30" x2="270" y2="30"/><line x1="30" y1="60" x2="270" y2="60"/>
+                  <line x1="30" y1="90" x2="270" y2="90"/><line x1="30" y1="120" x2="270" y2="120"/>
+                  <line x1="30" y1="150" x2="270" y2="150"/>
+                  <line x1="60" y1="20" x2="60" y2="165"/><line x1="90" y1="20" x2="90" y2="165"/>
+                  <line x1="120" y1="20" x2="120" y2="165"/><line x1="150" y1="20" x2="150" y2="165"/>
+                  <line x1="180" y1="20" x2="180" y2="165"/><line x1="210" y1="20" x2="210" y2="165"/>
+                  <line x1="240" y1="20" x2="240" y2="165"/>
+                </g>
+                <!-- Triangle -->
+                <polygon points="60,150 240,150 180,30" fill="#bbf7d0" fill-opacity="0.6" stroke="#16a34a" stroke-width="2.5"/>
+                <!-- Perpendicular Height Line -->
+                <line x1="180" y1="30" x2="180" y2="150" stroke="#dc2626" stroke-width="2.5" stroke-dasharray="5,4"/>
+                <!-- Right Angle Square -->
+                <polyline points="180,136 194,136 194,150" fill="none" stroke="#dc2626" stroke-width="2"/>
+                <!-- Labels -->
+                <text x="145" y="170" font-size="12" font-weight="bold" fill="#1e293b">Alas (a)</text>
+                <text x="188" y="95" font-size="12" font-weight="bold" fill="#dc2626">Tinggi (t) 90°</text>
+                <text x="72" y="82" font-size="11" font-weight="bold" fill="#64748b" transform="rotate(-45 72,82)">Sisi Miring (Bukan t)</text>
+              </svg>
+            </div>
+          </div>
+
+          <div class="bg-rose-50 border border-rose-200 rounded-xl p-3 text-xs text-rose-900">
+            <strong>Ingat:</strong> Sisi miring lebih panjang daripada garis tegak lurus. Jika kita mengalikan alas dengan sisi miring, hasilnya akan lebih besar dari luas sebenarnya!
+          </div>
+        </div>
+
+        <!-- Right: Generalization (2 Contextual Problems - Aktivitas 2) -->
+        <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
+          <div>
+            <span class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 text-xs font-bold">6. Generalization • Pengalaman: Mengaplikasi</span>
+            <h3 class="font-extrabold text-slate-800 text-base mt-2">LKPD Aktivitas 2: Tantangan Pemecahan Masalah Kontekstual</h3>
+          </div>
+
+          <!-- Problem 1 -->
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+            <div class="font-bold text-sm text-slate-800">
+              Soal 1 (Taman Sekolah):
+            </div>
+            <p class="text-xs text-slate-700 leading-relaxed">
+              Sekolah akan membuat taman bunga berbentuk segitiga siku-siku dengan panjang alas $a = 12\text{ m}$ dan tinggi $t = 8\text{ m}$. Jika setiap $1\text{ m}^2$ membutuhkan $4$ bibit tanaman hias, berapa <strong>luas taman</strong> dan <strong>total bibit</strong> yang dibutuhkan?
+            </p>
+            <div class="flex flex-wrap items-center gap-3 pt-1">
+              <div class="flex items-center gap-1.5">
+                <label class="text-xs font-bold text-slate-600">Luas ($\text{m}^2$):</label>
+                <input type="number" id="soal1-luas" class="w-20 px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs font-bold" placeholder="?" />
+              </div>
+              <div class="flex items-center gap-1.5">
+                <label class="text-xs font-bold text-slate-600">Total Bibit:</label>
+                <input type="number" id="soal1-bibit" class="w-20 px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs font-bold" placeholder="?" />
+              </div>
+              <button onclick="checkSoal1()" class="px-3.5 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 transition">Periksa</button>
+            </div>
+            <div id="fb-soal1" class="hidden text-xs font-semibold p-2.5 rounded-lg"></div>
+          </div>
+
+          <!-- Problem 2 -->
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+            <div class="font-bold text-sm text-slate-800">
+              Soal 2 (Layar Perahu Nelayan):
+            </div>
+            <p class="text-xs text-slate-700 leading-relaxed">
+              Sebuah layar perahu tradisional berbentuk segitiga memiliki panjang alas $6\text{ m}$, sisi miring $10\text{ m}$, dan tinggi tegak lurus $8\text{ m}$. Hitunglah luas kain yang diperlukan! <em>(Hati-hati memilih tinggi!)</em>
+            </p>
+            <div class="flex flex-wrap items-center gap-3 pt-1">
+              <div class="flex items-center gap-1.5">
+                <label class="text-xs font-bold text-slate-600">Luas Layar ($\text{m}^2$):</label>
+                <input type="number" id="soal2-luas" class="w-24 px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs font-bold" placeholder="?" />
+              </div>
+              <button onclick="checkSoal2()" class="px-3.5 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 transition">Periksa</button>
+            </div>
+            <div id="fb-soal2" class="hidden text-xs font-semibold p-2.5 rounded-lg"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- SLIDE 6: PENUTUP - REFLEKSI MENDALAM & TINDAK LANJUT      -->
+    <!-- ========================================================= -->
+    <section id="slide-6" class="slide-panel space-y-6">
+      <div class="flex flex-wrap items-center justify-between gap-2 bg-white p-4 rounded-2xl border border-slate-200">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-amber-600">Tahap Penutup (10 Menit) • Pengalaman: Merefleksi</span>
+          <h2 class="text-xl font-extrabold text-slate-800">Refleksi Mendalam & Tindak Lanjut Pembelajaran</h2>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="setStageTimer(10)" class="px-3 py-1.5 rounded-xl bg-amber-50 text-amber-800 text-xs font-bold hover:bg-amber-100 transition">
+            Set Timer 10 Menit
+          </button>
+          <a id="slide6-padlet-link" href="https://padlet.com" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-600 text-white text-xs font-bold hover:bg-amber-700 transition shadow-sm">
+            <span>Buka Padlet / Mentimeter</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Left: 2 Reflection Questions & Next Lesson -->
+        <div class="lg:col-span-5 space-y-4">
+          <div class="bg-amber-50 border border-amber-200 rounded-2xl p-5 space-y-3">
+            <h3 class="font-extrabold text-amber-950 text-base">Dua Pertanyaan Refleksi Siswa</h3>
+            <div class="bg-white p-3.5 rounded-xl border border-amber-200 text-xs space-y-1">
+              <div class="font-bold text-amber-700">Pertanyaan 1:</div>
+              <p class="text-slate-800 font-medium">"Hal baru apa yang kamu sadari hari ini tentang hubungan persegi panjang dan segitiga?"</p>
+            </div>
+            <div class="bg-white p-3.5 rounded-xl border border-amber-200 text-xs space-y-1">
+              <div class="font-bold text-amber-700">Pertanyaan 2:</div>
+              <p class="text-slate-800 font-medium">"Bagian mana yang sempat membuatmu bingung dan bagaimana kamu mengatasinya?"</p>
+            </div>
+          </div>
+
+          <div class="bg-indigo-900 text-white rounded-2xl p-5 space-y-2 shadow-sm">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-indigo-300">Tindak Lanjut & Pertemuan Berikutnya</span>
+            <h4 class="font-bold text-base">Apa yang Akan Kita Pelajari Selanjutnya?</h4>
+            <p class="text-xs text-indigo-100 leading-relaxed">
+              Pada pertemuan berikutnya, kita akan menggunakan rumus $L = \frac{1}{2} \times a \times t$ secara terbalik untuk <strong>menentukan panjang alas ($a$) atau tinggi ($t$) jika luas segitiga sudah diketahui</strong>!
+            </p>
+          </div>
+        </div>
+
+        <!-- Right: Built-in Digital Sticky Notes Wall -->
+        <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex flex-col justify-between space-y-4">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="font-extrabold text-slate-800 text-base">Papan Sticky Notes Refleksi Kelas (Alternatif Padlet)</h3>
+              <button onclick="clearStickyNotes()" class="text-xs text-slate-400 hover:text-rose-600 font-semibold">Bersihkan Papan</button>
+            </div>
+            <p class="text-xs text-slate-500 mb-3">
+              Jika perangkat terbatas, perwakilan siswa atau guru dapat mengetikkan refleksi langsung di papan sticky notes kelas berikut:
+            </p>
+
+            <!-- Input Form -->
+            <div class="flex flex-col sm:flex-row gap-2 mb-4">
+              <input type="text" id="stickyAuthor" placeholder="Nama / Kelompok" class="sm:w-36 px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold focus:outline-none focus:border-amber-500" />
+              <input type="text" id="stickyText" placeholder="Tulis hal baru yang kamu sadari hari ini..." class="flex-1 px-3 py-2 rounded-xl border border-slate-300 text-xs focus:outline-none focus:border-amber-500" />
+              <button onclick="addStickyNote()" class="px-4 py-2 rounded-xl bg-amber-500 text-white text-xs font-bold hover:bg-amber-600 transition shrink-0">
+                Tempel Catatan
+              </button>
+            </div>
+
+            <!-- Notes Grid -->
+            <div id="stickyBoard" class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[260px] overflow-y-auto p-1">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- BOTTOM SLIDE CONTROLLER -->
+  <footer class="bg-white border-t border-slate-200 py-3 px-4 sticky bottom-0 z-20">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <button onclick="prevSlide()" id="prevSlideBtn" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs sm:text-sm font-bold hover:bg-slate-200 disabled:opacity-40 transition">
+        <span>&larr; Tahap Sebelumnya</span>
+      </button>
+
+      <div class="text-xs font-bold text-slate-500" id="slideCounterText">
+        Halaman 1 dari 7
+      </div>
+
+      <button onclick="nextSlide()" id="nextSlideBtn" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs sm:text-sm font-bold hover:bg-indigo-700 disabled:opacity-40 transition">
+        <span>Tahap Berikutnya &rarr;</span>
+      </button>
+    </div>
+  </footer>
+
+  <!-- ========================================================= -->
+  <!-- MODAL 1: ATUR CONNECTOR LINK KELAS                        -->
+  <!-- ========================================================= -->
+  <div id="linkModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+        <h3 class="font-extrabold text-lg text-slate-800">Pengaturan Connector Link Kelas</h3>
+        <button onclick="closeModal('linkModal')" class="text-slate-400 hover:text-slate-700 font-bold text-lg">&times;</button>
+      </div>
+      <p class="text-xs text-slate-600">
+        Tempelkan tautan khusus kelas Anda (misalnya link room Quizizz, Polypad kelas, atau papan Padlet) agar seluruh tombol pada tayangan ini langsung mengarah ke ruang belajar Anda.
+      </p>
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">1. Link Kuis Diagnostik (Wordwall / Quizizz)</label>
+          <input type="url" id="input-link-quiz" class="w-full px-3 py-2 border border-slate-300 rounded-xl" placeholder="https://wordwall.net/..." />
+        </div>
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">2. Link Slide Stimulus (Canva)</label>
+          <input type="url" id="input-link-canva" class="w-full px-3 py-2 border border-slate-300 rounded-xl" placeholder="https://www.canva.com/..." />
+        </div>
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">3. Link Kanvas Eksplorasi (Mathigon Polypad)</label>
+          <input type="url" id="input-link-polypad" class="w-full px-3 py-2 border border-slate-300 rounded-xl" placeholder="https://polypad.amplify.com/p" />
+        </div>
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">4. Link Papan Refleksi (Padlet / Mentimeter)</label>
+          <input type="url" id="input-link-padlet" class="w-full px-3 py-2 border border-slate-300 rounded-xl" placeholder="https://padlet.com/..." />
+        </div>
+      </div>
+      <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-200">
+        <button onclick="resetCustomLinks()" class="px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100">Reset Default</button>
+        <button onclick="saveCustomLinks()" class="px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700">Simpan Tautan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- MODAL 2: RUBRIK PENILAIAN & ADAPTASI INFRASTRUKTUR         -->
+  <!-- ========================================================= -->
+  <div id="rubricModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-xl space-y-5">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+        <h3 class="font-extrabold text-lg text-slate-800">Panduan Guru: Rubrik Asesmen & Adaptasi Sarana</h3>
+        <button onclick="closeModal('rubricModal')" class="text-slate-400 hover:text-slate-700 font-bold text-xl">&times;</button>
+      </div>
+
+      <!-- Diferensiasi Infrastruktur -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+        <div class="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200">
+          <div class="font-bold text-emerald-900 mb-1">Skenario A: 1 Perangkat per Kelompok (Chromebook/Tablet)</div>
+          <p class="text-emerald-800">Setiap kelompok mengeksplorasi Mathigon Polypad secara langsung dan mengirimkan tangkapan layar (screenshot) hasil potongan ke Padlet/WhatsApp grup kelas.</p>
+        </div>
+        <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200">
+          <div class="font-bold text-amber-900 mb-1">Skenario B: Perangkat Terbatas (1 Laptop Guru & Proyektor)</div>
+          <p class="text-amber-800">Eksplorasi dilakukan klasikal interaktif; perwakilan tiap kelompok maju bergantian memotong bangun datar di papan proyeksi sementara kelompok lain mencatat pada LKPD cetak.</p>
+        </div>
+      </div>
+
+      <!-- Rubrik Table -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead>
+            <tr class="bg-slate-100 text-slate-800 border-b border-slate-300">
+              <th class="p-2.5 font-bold">Kriteria Penilaian</th>
+              <th class="p-2.5 font-bold text-rose-700">Perlu Bimbingan (1)</th>
+              <th class="p-2.5 font-bold text-amber-700">Cukup (2)</th>
+              <th class="p-2.5 font-bold text-blue-700">Baik (3)</th>
+              <th class="p-2.5 font-bold text-emerald-700">Sangat Baik (4)</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200">
+            <tr>
+              <td class="p-2.5 font-bold">Identifikasi Alas & Tinggi Segitiga</td>
+              <td class="p-2.5">Belum mampu membedakan garis tinggi dan sisi miring segitiga.</td>
+              <td class="p-2.5">Mampu menentukan alas & tinggi hanya pada segitiga siku-siku.</td>
+              <td class="p-2.5">Mampu menentukan pasangan alas & tinggi tegak lurus pada sebagian besar segitiga.</td>
+              <td class="p-2.5">Selalu tepat menentukan alas & tinggi yang saling tegak lurus ($90^\circ$) pada semua posisi segitiga.</td>
+            </tr>
+            <tr>
+              <td class="p-2.5 font-bold">Penalaran Konsep Penemuan Rumus</td>
+              <td class="p-2.5">Belum memahami hubungan antara luas persegi panjang dan luas segitiga.</td>
+              <td class="p-2.5">Memahami segitiga lebih kecil dari persegi panjang namun belum tepat menyatakannya sebagai $\frac{1}{2}$.</td>
+              <td class="p-2.5">Mampu menunjukkan luas segitiga $= \frac{1}{2}$ luas persegi panjang melalui simulasi.</td>
+              <td class="p-2.5">Mampu menjelaskan secara logis asal-usul rumus $L = \frac{1}{2} \times a \times t$ dari pemotongan persegi panjang.</td>
+            </tr>
+            <tr>
+              <td class="p-2.5 font-bold">Ketelitian Perhitungan & Pemecahan Masalah</td>
+              <td class="p-2.5">Salah menggunakan rumus dan belum mampu menyelesaikan soal cerita.</td>
+              <td class="p-2.5">Rumus benar tetapi sering terjadi kekeliruan saat menghitung perkalian atau pembagian dua.</td>
+              <td class="p-2.5">Menghitung luas dengan benar namun langkah penyelesaian soal cerita kurang lengkap.</td>
+              <td class="p-2.5">Langkah sistematis, perhitungan akurat, dan mencantumkan satuan luas ($\text{cm}^2/\text{m}^2$) dengan tepat.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    // ==========================================
+    // 1. SLIDE NAVIGATION & STEPPER DATA
+    // ==========================================
+    const slidesMeta = [
+      { title: "0. Connector Map", duration: 0 },
+      { title: "1. Pendahuluan: STOP & Kuis", duration: 10 },
+      { title: "2. Pemantik Kontekstual", duration: 5 },
+      { title: "3. Stimulation & Problem", duration: 10 },
+      { title: "4. Eksplorasi & LKPD", duration: 25 },
+      { title: "5. Pembuktian & Aplikasi", duration: 15 },
+      { title: "6. Penutup & Refleksi", duration: 10 }
+    ];
+    let currentSlide = 0;
+
+    function renderStepper() {
+      const nav = document.getElementById('stepperNav');
+      nav.innerHTML = slidesMeta.map((s, idx) => {
+        const activeClass = idx === currentSlide
+          ? 'bg-indigo-600 text-white shadow-xs'
+          : 'bg-white text-slate-600 hover:bg-indigo-50 border border-slate-200';
+        return `<button onclick="goToSlide(${idx})" class="px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap ${activeClass}">${s.title}</button>`;
+      }).join('');
+    }
+
+    function goToSlide(index) {
+      if (index < 0 || index >= slidesMeta.length) return;
+      document.querySelectorAll('.slide-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById(`slide-${index}`).classList.add('active');
+      currentSlide = index;
+      renderStepper();
+      document.getElementById('slideCounterText').textContent = `Halaman ${currentSlide + 1} dari ${slidesMeta.length}`;
+      document.getElementById('prevSlideBtn').disabled = currentSlide === 0;
+      document.getElementById('nextSlideBtn').disabled = currentSlide === slidesMeta.length - 1;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      renderMath();
+    }
+
+    function nextSlide() { goToSlide(currentSlide + 1); }
+    function prevSlide() { goToSlide(currentSlide - 1); }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      if (e.key === 'ArrowRight') nextSlide();
+      if (e.key === 'ArrowLeft') prevSlide();
+    });
+
+    // ==========================================
+    // 2. CLASSROOM STAGE TIMER
+    // ==========================================
+    let timerSeconds = 600;
+    let timerInterval = null;
+    let isTimerRunning = false;
+
+    function formatTime(sec) {
+      const m = Math.floor(sec / 60).toString().padStart(2, '0');
+      const s = (sec % 60).toString().padStart(2, '0');
+      return `${m}:${s}`;
+    }
+
+    function updateTimerDisplay() {
+      const el = document.getElementById('timerDisplay');
+      el.textContent = formatTime(timerSeconds);
+      if (timerSeconds <= 60 && timerSeconds > 0) {
+        el.classList.add('text-rose-600');
+        el.classList.remove('text-indigo-700');
+      } else {
+        el.classList.remove('text-rose-600');
+        el.classList.add('text-indigo-700');
+      }
+    }
+
+    function toggleTimer() {
+      const btn = document.getElementById('timerToggleBtn');
+      if (isTimerRunning) {
+        clearInterval(timerInterval);
+        isTimerRunning = false;
+        btn.textContent = 'Lanjut';
+      } else {
+        isTimerRunning = true;
+        btn.textContent = 'Jeda';
+        timerInterval = setInterval(() => {
+          if (timerSeconds > 0) {
+            timerSeconds--;
+            updateTimerDisplay();
+          } else {
+            clearInterval(timerInterval);
+            isTimerRunning = false;
+            btn.textContent = 'Selesai';
+          }
+        }, 1000);
+      }
+    }
+
+    function setStageTimer(minutes) {
+      clearInterval(timerInterval);
+      isTimerRunning = false;
+      document.getElementById('timerToggleBtn').textContent = 'Mulai';
+      timerSeconds = minutes * 60;
+      updateTimerDisplay();
+    }
+
+    function resetTimer() {
+      const defaultMin = slidesMeta[currentSlide].duration || 10;
+      setStageTimer(defaultMin);
+    }
+
+    // ==========================================
+    // 3. CUSTOM CONNECTOR LINKS (LOCALSTORAGE)
+    // ==========================================
+    const defaultLinks = {
+      quiz: 'https://wordwall.net',
+      canva: 'https://www.canva.com',
+      polypad: 'https://polypad.amplify.com/p',
+      padlet: 'https://padlet.com'
+    };
+
+    function loadCustomLinks() {
+      let links = { ...defaultLinks };
+      try {
+        const saved = localStorage.getItem('luas_segitiga_links');
+        if (saved) links = { ...links, ...JSON.parse(saved) };
+      } catch (e) {}
+
+      document.getElementById('conn-quiz').href = links.quiz;
+      document.getElementById('slide1-quiz-link').href = links.quiz;
+      document.getElementById('conn-canva').href = links.canva;
+      document.getElementById('slide2-canva-link').href = links.canva;
+      document.getElementById('conn-polypad').href = links.polypad;
+      document.getElementById('slide4-polypad-link').href = links.polypad;
+      document.getElementById('conn-padlet').href = links.padlet;
+      document.getElementById('slide6-padlet-link').href = links.padlet;
+
+      document.getElementById('input-link-quiz').value = links.quiz;
+      document.getElementById('input-link-canva').value = links.canva;
+      document.getElementById('input-link-polypad').value = links.polypad;
+      document.getElementById('input-link-padlet').value = links.padlet;
+    }
+
+    function saveCustomLinks() {
+      const links = {
+        quiz: document.getElementById('input-link-quiz').value.trim() || defaultLinks.quiz,
+        canva: document.getElementById('input-link-canva').value.trim() || defaultLinks.canva,
+        polypad: document.getElementById('input-link-polypad').value.trim() || defaultLinks.polypad,
+        padlet: document.getElementById('input-link-padlet').value.trim() || defaultLinks.padlet
+      };
+      try {
+        localStorage.setItem('luas_segitiga_links', JSON.stringify(links));
+      } catch (e) {}
+      loadCustomLinks();
+      closeModal('linkModal');
+    }
+
+    function resetCustomLinks() {
+      try { localStorage.removeItem('luas_segitiga_links'); } catch (e) {}
+      loadCustomLinks();
+    }
+
+    // ==========================================
+    // 4. DIAGNOSTIC QUIZ LOGIC (SLIDE 1)
+    // ==========================================
+    function checkDiag(btn, qNum, isCorrect) {
+      document.querySelectorAll(`.diag-btn-${qNum}`).forEach(b => {
+        b.classList.remove('bg-emerald-600', 'text-white', 'bg-rose-600', 'border-emerald-600', 'border-rose-600');
+        b.classList.add('bg-white', 'text-slate-800');
+      });
+      const fb = document.getElementById(`diag-fb-${qNum}`);
+      fb.classList.remove('hidden', 'text-emerald-700', 'text-rose-700');
+      if (isCorrect) {
+        btn.classList.remove('bg-white', 'text-slate-800');
+        btn.classList.add('bg-emerald-600', 'text-white', 'border-emerald-600');
+        fb.classList.add('text-emerald-700');
+        fb.textContent = 'Tepat sekali! Pengetahuan prasyarat siap.';
+      } else {
+        btn.classList.remove('bg-white', 'text-slate-800');
+        btn.classList.add('bg-rose-600', 'text-white', 'border-rose-600');
+        fb.classList.add('text-rose-700');
+        fb.textContent = 'Belum tepat, yuk coba hitung kembali bersama-sama!';
+      }
+    }
+
+    // ==========================================
+    // 5. INTERACTIVE GRID SIMULATOR (SLIDE 3)
+    // ==========================================
+    let simW = 6;
+    let simH = 4;
+
+    function setGridSize(w, h) {
+      simW = w;
+      simH = h;
+      document.querySelectorAll('.grid-size-btn').forEach(b => {
+        b.classList.remove('bg-indigo-600', 'text-white');
+        b.classList.add('bg-slate-100', 'text-slate-700');
+      });
+      const activeBtn = document.getElementById(`btn-grid-${w}x${h}`);
+      if (activeBtn) {
+        activeBtn.classList.remove('bg-slate-100', 'text-slate-700');
+        activeBtn.classList.add('bg-indigo-600', 'text-white');
+      }
+      const slider = document.getElementById('vertexSlider');
+      slider.max = w;
+      slider.value = 0;
+      updateSimulation();
+    }
+
+    function setVertexPreset(type) {
+      const slider = document.getElementById('vertexSlider');
+      if (type === 'right') slider.value = 0;
+      if (type === 'isosceles') slider.value = Math.floor(simW / 2);
+      if (type === 'scalene') slider.value = Math.max(1, Math.floor(simW * 0.8));
+      updateSimulation();
+    }
+
+    function updateSimulation() {
+      const svg = document.getElementById('simSvg');
+      const topXUnits = parseInt(document.getElementById('vertexSlider').value, 10);
+      const cell = 34;
+      const offsetX = 40;
+      const offsetY = 25;
+      const rectW = simW * cell;
+      const rectH = simH * cell;
+
+      let svgContent = '';
+      // Draw Grid Cells
+      for (let r = 0; r < simH; r++) {
+        for (let c = 0; c < simW; c++) {
+          svgContent += `<rect x="${offsetX + c * cell}" y="${offsetY + r * cell}" width="${cell}" height="${cell}" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>`;
+        }
+      }
+
+      // Outer Rectangle Border
+      svgContent += `<rect x="${offsetX}" y="${offsetY}" width="${rectW}" height="${rectH}" fill="none" stroke="#334155" stroke-width="2.5"/>`;
+
+      // Shaded Triangle
+      const x1 = offsetX;
+      const y1 = offsetY + rectH;
+      const x2 = offsetX + rectW;
+      const y2 = offsetY + rectH;
+      const x3 = offsetX + topXUnits * cell;
+      const y3 = offsetY;
+
+      svgContent += `<polygon points="${x1},${y1} ${x2},${y2} ${x3},${y3}" fill="#10b981" fill-opacity="0.45" stroke="#059669" stroke-width="3"/>`;
+
+      // Perpendicular Height Line (t)
+      svgContent += `<line x1="${x3}" y1="${y3}" x2="${x3}" y2="${y1}" stroke="#e11d48" stroke-width="2.2" stroke-dasharray="5,4"/>`;
+      // Right angle symbol
+      const sq = 10;
+      const dir = topXUnits === simW ? -1 : 1;
+      svgContent += `<polyline points="${x3},${y1 - sq} ${x3 + dir * sq},${y1 - sq} ${x3 + dir * sq},${y1}" fill="none" stroke="#e11d48" stroke-width="2"/>`;
+
+      // Vertex dot
+      svgContent += `<circle cx="${x3}" cy="${y3}" r="5" fill="#4f46e5"/>`;
+
+      // Labels
+      svgContent += `<text x="${offsetX + rectW / 2}" y="${y1 + 20}" text-anchor="middle" font-size="13" font-weight="bold" fill="#1e293b">Alas (a) = ${simW} petak</text>`;
+      svgContent += `<text x="${x3 + (topXUnits === simW ? -45 : 8)}" y="${offsetY + rectH / 2}" font-size="12" font-weight="bold" fill="#e11d48">t = ${simH}</text>`;
+
+      svg.innerHTML = svgContent;
+
+      const rectArea = simW * simH;
+      const triArea = rectArea / 2;
+      document.getElementById('simRectArea').innerHTML = `$${simW} \\times ${simH} = ${rectArea}$ petak`;
+      document.getElementById('simTriArea').innerHTML = `$${triArea}$ petak satuan`;
+      renderMath();
+    }
+
+    // ==========================================
+    // 6. LKPD DIGITAL CHECKER (SLIDE 4 & 5)
+    // ==========================================
+    function checkLkpdTable() {
+      const tri1 = parseFloat(document.getElementById('lkpd-tri1').value);
+      const rect2 = parseFloat(document.getElementById('lkpd-rect2').value);
+      const a2 = parseFloat(document.getElementById('lkpd-a2').value);
+      const t2 = parseFloat(document.getElementById('lkpd-t2').value);
+      const tri2 = parseFloat(document.getElementById('lkpd-tri2').value);
+      const rect3 = parseFloat(document.getElementById('lkpd-rect3').value);
+      const a3 = parseFloat(document.getElementById('lkpd-a3').value);
+      const t3 = parseFloat(document.getElementById('lkpd-t3').value);
+      const tri3 = parseFloat(document.getElementById('lkpd-tri3').value);
+
+      const fb = document.getElementById('lkpdTableFeedback');
+      fb.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-800', 'bg-amber-50', 'text-amber-800');
+
+      const allOk = (tri1 === 12) && (rect2 === 40) && (a2 === 8) && (t2 === 5) && (tri2 === 20) &&
+                    (rect3 === 40) && (a3 === 10) && (t3 === 4) && (tri3 === 20);
+
+      if (allOk) {
+        fb.classList.add('bg-emerald-50', 'text-emerald-800');
+        fb.innerHTML = 'Luar biasa! Seluruh data pengamatan pada tabel LKPD benar. Terbukti luas segitiga selalu $\\frac{1}{2}$ dari luas persegi panjang!';
+      } else {
+        fb.classList.add('bg-amber-50', 'text-amber-800');
+        fb.innerHTML = 'Masih ada kolom yang kosong atau kurang tepat. Periksa kembali perkalian $p \\times l$ dan pastikan luas segitiga adalah setengahnya.';
+      }
+      renderMath();
+    }
+
+    function fillLkpdDemo() {
+      document.getElementById('lkpd-tri1').value = 12;
+      document.getElementById('lkpd-rect2').value = 40;
+      document.getElementById('lkpd-a2').value = 8;
+      document.getElementById('lkpd-t2').value = 5;
+      document.getElementById('lkpd-tri2').value = 20;
+      document.getElementById('lkpd-rect3').value = 40;
+      document.getElementById('lkpd-a3').value = 10;
+      document.getElementById('lkpd-t3').value = 4;
+      document.getElementById('lkpd-tri3').value = 20;
+      checkLkpdTable();
+    }
+
+    function revealFormula() {
+      const box = document.getElementById('formulaRevealBox');
+      box.innerHTML = `
+        <div class="px-5 py-3 rounded-xl bg-emerald-600 text-white font-extrabold text-base shadow-sm">
+          $L = \\frac{1}{2} \\times a \\times t$
+        </div>
+      `;
+      renderMath();
+    }
+
+    function checkSoal1() {
+      const luas = parseFloat(document.getElementById('soal1-luas').value);
+      const bibit = parseFloat(document.getElementById('soal1-bibit').value);
+      const fb = document.getElementById('fb-soal1');
+      fb.classList.remove('hidden', 'bg-emerald-100', 'text-emerald-900', 'bg-rose-100', 'text-rose-900');
+
+      if (luas === 48 && bibit === 192) {
+        fb.classList.add('bg-emerald-100', 'text-emerald-900');
+        fb.innerHTML = 'Benar sekali! $L = \\frac{1}{2} \\times 12 \\times 8 = 48\\text{ m}^2$, dan total bibit $= 48 \\times 4 = 192$ bibit.';
+      } else {
+        fb.classList.add('bg-rose-100', 'text-rose-900');
+        fb.innerHTML = 'Belum tepat. Ingat: $L = \\frac{1}{2} \\times 12 \\times 8 = 48\\text{ m}^2$, lalu kalikan luas taman dengan $4$ bibit.';
+      }
+      renderMath();
+    }
+
+    function checkSoal2() {
+      const luas = parseFloat(document.getElementById('soal2-luas').value);
+      const fb = document.getElementById('fb-soal2');
+      fb.classList.remove('hidden', 'bg-emerald-100', 'text-emerald-900', 'bg-rose-100', 'text-rose-900', 'bg-amber-100', 'text-amber-900');
+
+      if (luas === 24) {
+        fb.classList.add('bg-emerald-100', 'text-emerald-900');
+        fb.innerHTML = 'Tepat! Kamu teliti memilih tinggi tegak lurus ($t = 8\\text{ m}$), bukan sisi miring ($10\\text{ m}$). Jadi $L = \\frac{1}{2} \\times 6 \\times 8 = 24\\text{ m}^2$.';
+      } else if (luas === 30) {
+        fb.classList.add('bg-amber-100', 'text-amber-900');
+        fb.innerHTML = 'Hati-hati! Kamu mengalikan dengan sisi miring ($10\\text{ m}$). Gunakan tinggi tegak lurus ($t = 8\\text{ m}$): $L = \\frac{1}{2} \\times 6 \\times 8$.';
+      } else {
+        fb.classList.add('bg-rose-100', 'text-rose-900');
+        fb.innerHTML = 'Kurang tepat. Gunakan rumus $L = \\frac{1}{2} \\times a \\times t$ dengan $a = 6\\text{ m}$ dan $t = 8\\text{ m}$.';
+      }
+      renderMath();
+    }
+
+    // ==========================================
+    // 7. STICKY NOTES REFLECTION WALL (SLIDE 6)
+    // ==========================================
+    const stickyColors = ['bg-amber-100 border-amber-300', 'bg-sky-100 border-sky-300', 'bg-emerald-100 border-emerald-300', 'bg-purple-100 border-purple-300'];
+    let stickyNotes = [
+      { author: "Contoh (Kelompok 1)", text: "Saya baru sadar segitiga sembarang pun luasnya tetap setengah dari persegi panjang!" }
+    ];
+
+    function renderStickyNotes() {
+      const board = document.getElementById('stickyBoard');
+      board.innerHTML = stickyNotes.map((n, i) => {
+        const color = stickyColors[i % stickyColors.length];
+        return `
+          <div class="p-3.5 rounded-xl border ${color} shadow-2xs space-y-1">
+            <div class="text-[11px] font-extrabold text-slate-700">${escapeHtml(n.author)}</div>
+            <p class="text-xs text-slate-800 leading-snug">${escapeHtml(n.text)}</p>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function addStickyNote() {
+      const author = document.getElementById('stickyAuthor').value.trim() || 'Siswa Kelas V';
+      const text = document.getElementById('stickyText').value.trim();
+      if (!text) return;
+      stickyNotes.unshift({ author, text });
+      document.getElementById('stickyText').value = '';
+      renderStickyNotes();
+    }
+
+    function clearStickyNotes() {
+      stickyNotes = [];
+      renderStickyNotes();
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+    }
+
+    // ==========================================
+    // 8. MODAL & KATEX RENDER HELPERS
+    // ==========================================
+    function openModal(id) {
+      const el = document.getElementById(id);
+      el.classList.remove('hidden');
+      el.classList.add('flex');
+      renderMath();
+    }
+
+    function closeModal(id) {
+      const el = document.getElementById(id);
+      el.classList.add('hidden');
+      el.classList.remove('flex');
+    }
+
+    function renderMath() {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            { left: '$$', right: '$$', display: true },
+            { left: '$', right: '$', display: false }
+          ],
+          throwOnError: false
+        });
+      }
+    }
+
+    // Initialize on load
+    window.addEventListener('DOMContentLoaded', () => {
+      renderStepper();
+      loadCustomLinks();
+      updateSimulation();
+      renderStickyNotes();
+      setTimeout(renderMath, 200);
+    });
+  </script>
+</body>
+</html>
